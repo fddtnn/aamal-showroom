@@ -93,17 +93,26 @@
       ask: function () { return $(".prod__ask a", p).href; } };
   });
   var track = $(".tslider__track"), photo = $(".trust__photo"), prodImg = $(".trust__prod"), info = $(".tinfo");
-  var sel = -1, step = 0, PER = 4, CIRCLE = 42, paused = 0;
-  track.innerHTML = prods.map(function (p, i) {
-    return '<button type="button" aria-pressed="false" data-i="' + i + '"><img src="' + p.img + '" alt=""></button>';
-  }).join("");
+  var sel = -1, step = 0, CIRCLE = 42, paused = 0, N = prods.length;
+  // the list is rendered twice so the strip can loop endlessly: pieces leave on the left and come back in on the right
+  var one = function (copy) {
+    return prods.map(function (p, i) {
+      return '<button type="button" aria-pressed="false" data-i="' + i + '"' + (copy ? ' tabindex="-1" aria-hidden="true"' : "") + '><img src="' + p.img + '" alt=""></button>';
+    }).join("");
+  };
+  track.innerHTML = one(false) + one(true);
   var circles = $$("button", track);
-  function labelCircles() { circles.forEach(function (c, i) { c.setAttribute("aria-label", prods[i].name(L())); }); }
-  function slideTo(n) {
-    var max = Math.max(0, prods.length - PER);
-    step = n > max ? 0 : n < 0 ? max : n;
+  function labelCircles() { circles.forEach(function (c) { c.setAttribute("aria-label", prods[+c.dataset.i].name(L())); }); }
+  function place(animate) {
+    track.style.transition = animate ? "" : "none";
     track.style.transform = "translateX(" + (-step * CIRCLE) + "px)";
+    if (!animate) { void track.offsetWidth; track.style.transition = ""; }
   }
+  function slideTo(n) { step = n; place(true); }
+  // once the first copy has fully scrolled out, jump back to the start without animating (looks seamless)
+  track.addEventListener("transitionend", function (e) {
+    if (e.propertyName === "transform" && step >= N) { step -= N; place(false); }
+  });
   function renderInfo() {
     if (sel < 0) return;
     var p = prods[sel], l = L();
@@ -113,11 +122,10 @@
   }
   function select(i) {
     sel = i;
-    circles.forEach(function (c, k) { c.setAttribute("aria-pressed", String(k === i)); });
+    circles.forEach(function (c) { c.setAttribute("aria-pressed", String(+c.dataset.i === i)); });
     prodImg.src = prods[i].img; prodImg.alt = prods[i].name(L());
     photo.classList.remove("is-on"); prodImg.classList.add("is-on"); info.classList.add("is-on");
     renderInfo();
-    if (i < step || i >= step + PER) slideTo(Math.min(i, prods.length - PER));
     paused = Date.now();
   }
   function closeInfo() {
@@ -125,7 +133,7 @@
     circles.forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
     prodImg.classList.remove("is-on"); info.classList.remove("is-on"); photo.classList.add("is-on");
   }
-  circles.forEach(function (c, i) { c.addEventListener("click", function () { sel === i ? closeInfo() : select(i); }); });
+  circles.forEach(function (c) { c.addEventListener("click", function () { var i = +c.dataset.i; sel === i ? closeInfo() : select(i); }); });
   $(".tinfo__close").addEventListener("click", closeInfo);
   // the circles drift one step every 2.6 s (paused while hovered, or for 8 s after a tap)
   var hovering = false;
