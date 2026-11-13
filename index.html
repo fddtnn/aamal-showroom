@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chat.css">
 </head>
 <body>
   <span hidden data-ar-title="أعمال العرب | مساحات جميلة تبدأ من هنا" data-en-title="Aamal Al Arab | Beautiful homes start right here"></span>
@@ -52,10 +53,21 @@
         </div>
         <div class="trust">
           <div class="trust__head">
-            <span class="thumbs" aria-hidden="true"><span><img src="assets/img/p-armchair.jpg" alt=""></span><span><img src="assets/img/p-sofa.jpg" alt=""></span><span><img src="assets/img/p-bed.jpg" alt=""></span><span class="plus">+</span></span>
-            <span><span data-l="ar">صُنع على المقاس<br>في مشاغلنا بالرياض</span><span data-l="en">Made to measure<br>in our Riyadh workshops</span></span>
+            <div class="tslider" role="group" data-ar-aria="قطع مفصّلة — اضغط لعرض التفاصيل" data-en-aria="Made-to-measure pieces — tap for details">
+              <div class="tslider__track"></div>
+            </div>
+            <span class="trust__label"><span data-l="ar">صُنع على المقاس<br>في مشاغلنا بالرياض</span><span data-l="en">Made to measure<br>in our Riyadh workshops</span></span>
           </div>
-          <div class="trust__img"><img src="assets/img/svc-bespoke.jpg" alt="" data-ar-alt="كنبة مخمل مفصّلة" data-en-alt="A bespoke velvet sofa"></div>
+          <div class="trust__img">
+            <img class="trust__photo is-on" src="assets/img/svc-bespoke.jpg" alt="" data-ar-alt="كنبة مخمل مفصّلة" data-en-alt="A bespoke velvet sofa">
+            <img class="trust__prod" alt="">
+            <div class="tinfo" aria-live="polite">
+              <b class="tinfo__name"></b>
+              <span class="tinfo__desc"></span>
+              <a class="tinfo__ask" target="_blank" rel="noopener" href="#"><span data-l="ar">اطلب عبر واتساب</span><span data-l="en">Ask on WhatsApp</span></a>
+              <button class="tinfo__close" type="button" data-ar-aria="إغلاق" data-en-aria="Close">×</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -233,5 +245,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="chat.js" defer></script>
 </body>
 </html>

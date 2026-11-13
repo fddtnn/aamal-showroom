@@ -85,6 +85,56 @@
     });
   });
 
+  /* ---------- hero card: circles slider, tap a piece for its details ---------- */
+  var prods = $$(".prod").map(function (p) {
+    return { el: p, img: $(".prod__img img", p).getAttribute("src"),
+      name: function (l) { return p.getAttribute("data-name-" + l); },
+      desc: function (l) { var d = $('p [data-l="' + l + '"]', p); return d ? d.textContent : ""; },
+      ask: function () { return $(".prod__ask a", p).href; } };
+  });
+  var track = $(".tslider__track"), photo = $(".trust__photo"), prodImg = $(".trust__prod"), info = $(".tinfo");
+  var sel = -1, step = 0, PER = 4, CIRCLE = 42, paused = 0;
+  track.innerHTML = prods.map(function (p, i) {
+    return '<button type="button" aria-pressed="false" data-i="' + i + '"><img src="' + p.img + '" alt=""></button>';
+  }).join("");
+  var circles = $$("button", track);
+  function labelCircles() { circles.forEach(function (c, i) { c.setAttribute("aria-label", prods[i].name(L())); }); }
+  function slideTo(n) {
+    var max = Math.max(0, prods.length - PER);
+    step = n > max ? 0 : n < 0 ? max : n;
+    track.style.transform = "translateX(" + (-step * CIRCLE) + "px)";
+  }
+  function renderInfo() {
+    if (sel < 0) return;
+    var p = prods[sel], l = L();
+    $(".tinfo__name", info).textContent = p.name(l);
+    $(".tinfo__desc", info).textContent = (l === "ar" ? "على المقاس · " : "Made to measure · ") + p.desc(l);
+    $(".tinfo__ask", info).href = p.ask();
+  }
+  function select(i) {
+    sel = i;
+    circles.forEach(function (c, k) { c.setAttribute("aria-pressed", String(k === i)); });
+    prodImg.src = prods[i].img; prodImg.alt = prods[i].name(L());
+    photo.classList.remove("is-on"); prodImg.classList.add("is-on"); info.classList.add("is-on");
+    renderInfo();
+    if (i < step || i >= step + PER) slideTo(Math.min(i, prods.length - PER));
+    paused = Date.now();
+  }
+  function closeInfo() {
+    sel = -1;
+    circles.forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+    prodImg.classList.remove("is-on"); info.classList.remove("is-on"); photo.classList.add("is-on");
+  }
+  circles.forEach(function (c, i) { c.addEventListener("click", function () { sel === i ? closeInfo() : select(i); }); });
+  $(".tinfo__close").addEventListener("click", closeInfo);
+  // the circles drift one step every 2.6 s (paused while hovered, or for 8 s after a tap)
+  var hovering = false;
+  $(".trust").addEventListener("mouseenter", function () { hovering = true; });
+  $(".trust").addEventListener("mouseleave", function () { hovering = false; });
+  if (!reduce) setInterval(function () { if (!hovering && Date.now() - paused > 8000 && !document.hidden) slideTo(step + 1); }, 2600);
+  $(".nav__lang").addEventListener("click", function () { labelCircles(); renderInfo(); });
+  labelCircles();
+
   setLang(L(), false);
   if (reduce || !window.gsap) return;
 
